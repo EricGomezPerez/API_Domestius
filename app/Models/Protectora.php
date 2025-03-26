@@ -11,7 +11,7 @@ class Protectora extends Usuari
     protected $table = 'protectores';
 
     protected $fillable = [
-        'verificada' , 'direccion', 'telefono', 'imatge'
+        'verificada', 'direccion', 'telefono', 'imatge', 'horario_apertura', 'horario_cierre'
     ];
 
     // Relación con animales

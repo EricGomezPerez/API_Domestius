@@ -52,74 +52,82 @@ class ProtectoraController extends Controller
     }
 
     /**
-     * Crear una nueva protectora
-     */
-    public function createProtectora(Request $request)
-    {
-        $validatedData = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'direccion' => 'required|string|max:255',
-            'telefono' => 'required|string|max:20',
-            'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
-        ]);
+ * Crear una nueva protectora
+ */
+public function createProtectora(Request $request)
+{
+    $validatedData = $request->validate([
+        'nombre' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8',
+        'direccion' => 'required|string|max:255',
+        'telefono' => 'required|string|max:20',
+        'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
+        'horario_apertura' => 'nullable|date_format:H:i',
+        'horario_cierre' => 'nullable|date_format:H:i',
+    ]);
 
-        // Crear la protectora (que hereda de usuario)
-        $protectora = new Protectora();
-        $protectora->nombre = $validatedData['nombre'];
-        $protectora->email = $validatedData['email'];
-        $protectora->password = Hash::make($validatedData['password']);
-        $protectora->direccion = $validatedData['direccion'];
-        $protectora->telefono = $validatedData['telefono'];
-        
-        // Procesar la imagen si existe
-        if ($request->file('imatge')) {
-            $file = $request->file('imatge');
-            $extension = $file->getClientOriginalExtension();
-            $filename = strtolower($protectora->nombre . '_' . uniqid() . '.' . $extension);
-            $file->move(public_path(env('RUTA_IMATGES')), $filename);
-            $protectora->imatge = $filename;
-        }
-        
-        $protectora->save();
+    // Crear la protectora (que hereda de usuario)
+    $protectora = new Protectora();
+    $protectora->nombre = $validatedData['nombre'];
+    $protectora->email = $validatedData['email'];
+    $protectora->password = Hash::make($validatedData['password']);
+    $protectora->direccion = $validatedData['direccion'];
+    $protectora->telefono = $validatedData['telefono'];
+    $protectora->horario_apertura = $validatedData['horario_apertura'] ?? null;
+    $protectora->horario_cierre = $validatedData['horario_cierre'] ?? null;
+    
+    // Procesar la imagen si existe
+    if ($request->file('imatge')) {
+        $file = $request->file('imatge');
+        $extension = $file->getClientOriginalExtension();
+        $filename = strtolower($protectora->nombre . '_' . uniqid() . '.' . $extension);
+        $file->move(public_path(env('RUTA_IMATGES')), $filename);
+        $protectora->imatge = $filename;
+    }
+    
+    $protectora->save();
 
-        // Excluir el campo 'password' de la respuesta
-        $protectora->makeHidden(['password']);
-        
-        // Retornar la URL de la imagen
-        if ($protectora->imatge) {
-            $protectora->imatge = url('/api/protectora/imatge/' . $protectora->id);
-        }
-
-        return response()->json($protectora, 201);
+    // Excluir el campo 'password' de la respuesta
+    $protectora->makeHidden(['password']);
+    
+    // Retornar la URL de la imagen
+    if ($protectora->imatge) {
+        $protectora->imatge = url('/api/protectora/imatge/' . $protectora->id);
     }
 
-    /**
-     * Actualizar una protectora existente
-     */
-    public function updateProtectora(Request $request, $id)
-    {
-        $protectora = Protectora::find($id);
-        
-        if (!$protectora) {
-            return response()->json(['error' => 'Protectora no encontrada'], 404);
-        }
+    return response()->json($protectora, 201);
+}
 
-        $validatedData = $request->validate([
-            'nombre' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,'.$protectora->id,
-            'direccion' => 'sometimes|string|max:255',
-            'telefono' => 'sometimes|string|max:20',
-            'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
-        ]);
+/**
+ * Actualizar una protectora existente
+ */
+public function updateProtectora(Request $request, $id)
+{
+    $protectora = Protectora::find($id);
+    
+    if (!$protectora) {
+        return response()->json(['error' => 'Protectora no encontrada'], 404);
+    }
 
-        // Actualizar campos básicos
-        if ($request->has('nombre')) $protectora->nombre = $validatedData['nombre'];
-        if ($request->has('email')) $protectora->email = $validatedData['email'];
-        if ($request->has('direccion')) $protectora->direccion = $validatedData['direccion'];
-        if ($request->has('telefono')) $protectora->telefono = $validatedData['telefono'];
-        
+    $validatedData = $request->validate([
+        'nombre' => 'sometimes|string|max:255',
+        'email' => 'sometimes|string|email|max:255|unique:users,email,'.$protectora->id,
+        'direccion' => 'sometimes|string|max:255',
+        'telefono' => 'sometimes|string|max:20',
+        'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
+        'horario_apertura' => 'nullable|date_format:H:i',
+        'horario_cierre' => 'nullable|date_format:H:i',
+    ]);
+
+    // Actualizar campos básicos
+    if ($request->has('nombre')) $protectora->nombre = $validatedData['nombre'];
+    if ($request->has('email')) $protectora->email = $validatedData['email'];
+    if ($request->has('direccion')) $protectora->direccion = $validatedData['direccion'];
+    if ($request->has('telefono')) $protectora->telefono = $validatedData['telefono'];
+    if ($request->has('horario_apertura')) $protectora->horario_apertura = $validatedData['horario_apertura'];
+    if ($request->has('horario_cierre')) $protectora->horario_cierre = $validatedData['horario_cierre'];
+    
         // Procesar la imagen si existe
         if ($request->file('imatge')) {
             // Eliminar imagen anterior si existe

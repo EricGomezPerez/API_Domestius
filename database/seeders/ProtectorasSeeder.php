@@ -45,6 +45,8 @@ class ProtectorasSeeder extends Seeder
                 'telefono' => $faker->phoneNumber,
                 'verificada' => $faker->boolean(70), // 70% de probabilidad de estar verificada
                 'imatge' => 'perro2.jpg', // Imagen por defecto
+                'horario_apertura' => $faker->time('H:i', '12:00'),  // Hora aleatoria antes de mediodía
+                'horario_cierre' => $faker->time('H:i', '20:00'),    // Hora aleatoria antes de las 8pm
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
