@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Publicacio extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'tipus', 'data', 'detalls', 'usuari_id'
+    ];
+
+    // Relación con el usuario (quien crea la publicación)
+    public function usuari()
+    {
+        return $this->belongsTo(Usuari::class);
+    }
+
+    // Relación con los animales en la publicación
+    public function animals()
+    {
+        return $this->hasMany(Animal::class);
+    }
+}

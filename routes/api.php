@@ -3,41 +3,33 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
-
-/*
-
-GET para obtener todos los libros
-
-PUT para actualizar un libro
-
-POST para crear un libro
-
-DELETE para borrar un libro
-
-*/
+use App\Http\Controllers\AnimalController;
+use App\Http\Controllers\ProtectoraController;
 
 
-Route::get('animales', [ApiController::class, 'getAnimales']);
+Route::get('animales', [AnimalController::class, 'getAnimales']);
 
-Route::get('animal/get/{id}', [ApiController::class, 'getAnimal']);
+Route::get('animal/get/{id}', [AnimalController::class, 'getAnimal']);
 
-Route::post('animal/{id}', [ApiController::class, 'updateAnimal']);
+Route::post('animal/{id}', [AnimalController::class, 'updateAnimal']);
 
-Route::post('animal/create', [ApiController::class, 'createAnimal']);
+Route::post('animal/create', [AnimalController::class, 'createAnimal']);
 
-Route::delete('animal/delete/{id}', [ApiController::class, 'deleteAnimal']); 
+Route::delete('animal/delete/{id}', [AnimalController::class, 'deleteAnimal']); 
 
-Route::get('animal/imatge/{id}', [ApiController::class, 'getAnimalImatge']);
+Route::get('animal/imatge/{id}', [AnimalController::class, 'getAnimalImatge']);
 
 
-Route::get('protectoras', [ApiController::class, 'getProtectoras']);
+Route::get('protectoras', [ProtectoraController::class, 'getProtectoras']);
 
-Route::get('protectora/get/{id}', [ApiController::class, 'getProtectora']); 
+Route::get('protectora/get/{id}', [ProtectoraController::class, 'getProtectora']); 
 
-Route::post('protectora/create', [ApiController::class, 'createProtectora']); 
+Route::post('protectora/create', [ProtectoraController::class, 'createProtectora']); 
 
-Route::post('protectora/{id}', [ApiController::class, 'updateProtectora']); 
+Route::post('protectora/{id}', [ProtectoraController::class, 'updateProtectora']); 
 
-Route::delete('protectora/delete/{id}', [ApiController::class, 'deleteProtectora']);
+Route::delete('protectora/delete/{id}', [ProtectoraController::class, 'deleteProtectora']);
+
+Route::get('protectora/imatge/{id}', [ProtectoraController::class, 'getProtectoraImatge']);
 
 
