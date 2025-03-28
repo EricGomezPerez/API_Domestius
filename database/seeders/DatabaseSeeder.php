@@ -15,6 +15,9 @@ class DatabaseSeeder extends Seeder
             AnimalesSeeder::class,
             ProtectorasSeeder::class,
             GeolocalitzacionsSeeder::class,
+            TipusInteraccioSeeder::class,
+            PublicacioSeeder::class,
+            InteraccioSeeder::class,
         ]);
     }
 }

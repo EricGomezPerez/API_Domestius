@@ -10,11 +10,8 @@ return new class extends Migration {
         Schema::create('tipus_interaccions', function (Blueprint $table) {
             $table->id();
             $table->string('nom')->unique();
+            $table->string('descripcio');
             $table->timestamps();
-        });
-
-        Schema::table('interaccions', function (Blueprint $table) {
-            $table->foreignId('tipus_interaccio_id')->constrained('tipus_interaccions')->onDelete('cascade');
         });
     }
 

@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Interaccio extends Model
 {
     use HasFactory;
+    protected $table = 'interaccions';
 
     protected $fillable = [
-        'usuari_id', 'accio', 'tipus_interaccio_id'
+        'usuari_id', 'accio', 'tipus_interaccio_id', 'publicacio_id', 'data', 'detalls'
     ];
 
     // Relación con el usuario
