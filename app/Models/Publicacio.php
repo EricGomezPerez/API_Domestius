@@ -22,6 +22,12 @@ class Publicacio extends Model
     // Relación con los animales en la publicación
     public function animals()
     {
-        return $this->hasMany(Animal::class);
+        return $this->hasOne(Animal::class);
+    }
+
+    // Relacion con las interacciones
+    public function interaccions()
+    {
+        return $this->hasMany(Interaccio::class);
     }
 }

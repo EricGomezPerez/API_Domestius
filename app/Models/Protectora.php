@@ -19,4 +19,9 @@ class Protectora extends Usuari
     {
         return $this->hasMany(Animal::class);
     }
+
+    public function usuari()
+{
+    return $this->belongsTo(Usuari::class);
+}
 }

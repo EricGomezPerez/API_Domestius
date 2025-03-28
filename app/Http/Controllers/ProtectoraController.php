@@ -14,15 +14,26 @@ class ProtectoraController extends Controller
      */
     public function getProtectoras()
     {
-        $protectoras = Protectora::all();
+        $protectoras = Protectora::with(['usuari'])->get();
         
-        // Excluir el campo 'password' de cada protectora
         $protectoras->makeHidden(['password']);
+
         
-        // Agregar URL de imagen para cada protectora
+        
         foreach ($protectoras as $protectora) {
+
+
+
             if ($protectora->imatge) {
                 $protectora->imatge = url('/api/protectora/imatge/' . $protectora->id);
+            }
+            
+            if ($protectora->user) {
+                $protectora->username = $protectora->user->name;
+                $protectora->user_email = $protectora->user->email;
+                $protectora->user_id = $protectora->user->id;
+                
+                $protectora->user->makeHidden(['password']);
             }
         }
         
@@ -34,18 +45,25 @@ class ProtectoraController extends Controller
      */
     public function getProtectora($id)
     {
-        $protectora = Protectora::find($id);
+        $protectora = Protectora::with('user')->find($id);
+
         
         if (!$protectora) {
             return response()->json(['error' => 'Protectora no encontrada'], 404);
         }
         
-        // Excluir el campo 'password'
         $protectora->makeHidden(['password']);
         
-        // Agregar URL de imagen
         if ($protectora->imatge) {
             $protectora->imatge = url('/api/protectora/imatge/' . $protectora->id);
+        }
+        
+        if ($protectora->user) {
+            $protectora->username = $protectora->user->name;
+            $protectora->user_email = $protectora->user->email;
+            $protectora->user_id = $protectora->user->id;
+            
+            $protectora->user->makeHidden(['password']);
         }
         
         return response()->json($protectora);
