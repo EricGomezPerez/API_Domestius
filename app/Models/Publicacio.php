@@ -11,7 +11,11 @@ class Publicacio extends Model
     protected $table = 'publicacions';
 
     protected $fillable = [
-        'tipus', 'data', 'detalls', 'usuari_id'
+        'tipus',
+        'data',
+        'detalls',
+        'usuari_id',
+        'animal_id'
     ];
 
     // Relación con el usuario (quien crea la publicación)
@@ -21,9 +25,9 @@ class Publicacio extends Model
     }
 
     // Relación con los animales en la publicación
-    public function animals()
+    public function animal()
     {
-        return $this->hasOne(Animal::class);
+        return $this->belongsTo(Animal::class);
     }
 
     // Relacion con las interacciones

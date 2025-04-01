@@ -35,17 +35,18 @@ class AnimalController extends Controller
     
     public function createAnimal(Request $request)
     {
+        try{
         $validatedData = $request->validate([
             'nom' => 'required|string|max:255',
             'edat' => 'required|integer',
             'especie' => 'required|string|max:255',
             'raça' => 'required|string|max:255',
             'descripcio' => 'nullable|string',
-            'ubicacio' => 'nullable|string',
             'estat' => 'required|string',
             'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
-            'protectora_id' => 'required|integer|exists:protectoras,id',
-            'publicacio_id' => 'nullable|integer|exists:publicacios,id',
+            'protectora_id' => 'required|integer|exists:protectores,id',
+            'publicacio_id' => 'nullable|integer|exists:publicacions,id',
+            'geolocalitzacio_id' => 'nullable|integer|exists:geolocalitzacions,id',
         ]);
 
         $animal = new Animal;
@@ -54,10 +55,10 @@ class AnimalController extends Controller
         $animal->especie = $validatedData['especie'];
         $animal->raça = $validatedData['raça'];
         $animal->descripcio = $validatedData['descripcio'] ?? null;
-        $animal->ubicacio = $validatedData['ubicacio'] ?? null;
         $animal->estat = $validatedData['estat'];
         $animal->protectora_id = $validatedData['protectora_id'];
         $animal->publicacio_id = $validatedData['publicacio_id'] ?? null;
+        $animal->geolocalitzacio_id = $validatedData['geolocalitzacio_id'] ?? null;
         
         if ($request->file('imatge')) {
             $file = $request->file('imatge');
@@ -80,6 +81,9 @@ class AnimalController extends Controller
         }
         
         return response()->json($animal, 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al crear el animal: ' . $e->getMessage()], 500);
+        }
     }
     
     public function updateAnimal(Request $request, $id)

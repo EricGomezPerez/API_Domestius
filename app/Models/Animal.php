@@ -10,7 +10,16 @@ class Animal extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nom', 'edat', 'especie', 'raça', 'descripcio', 'estat', 'imatge', 'protectora_id', 'publicacio_id', 'geolocalitzacio_id'
+        'nom',
+        'edat',
+        'especie',
+        'raça',
+        'descripcio',
+        'estat',
+        'imatge',
+        'protectora_id',
+        'publicacio_id',
+        'geolocalitzacio_id'
     ];
 
     public function geolocalitzacio()

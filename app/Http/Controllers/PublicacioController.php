@@ -15,7 +15,7 @@ class PublicacioController extends Controller
      */
     public function getPublicacions()
     {
-        $publicacions = Publicacio::with(['usuari', 'animals', 'interaccions'])->get();
+        $publicacions = Publicacio::with(['usuari', 'animal', 'interaccions'])->get();
 
         foreach ($publicacions as $publicacio) {
             // Añadimos datos del usuario si existe

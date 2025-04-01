@@ -11,9 +11,9 @@ Route::get('animales', [AnimalController::class, 'getAnimales']);
 
 Route::get('animal/get/{id}', [AnimalController::class, 'getAnimal']);
 
-Route::post('animal/{id}', [AnimalController::class, 'updateAnimal']);
-
 Route::post('animal/create', [AnimalController::class, 'createAnimal']);
+
+Route::post('animal/{id}', [AnimalController::class, 'updateAnimal']);
 
 Route::delete('animal/delete/{id}', [AnimalController::class, 'deleteAnimal']); 
 
@@ -31,7 +31,6 @@ Route::post('protectora/{id}', [ProtectoraController::class, 'updateProtectora']
 Route::delete('protectora/delete/{id}', [ProtectoraController::class, 'deleteProtectora']);
 
 Route::get('protectora/imatge/{id}', [ProtectoraController::class, 'getProtectoraImatge']);
-
 
 
 Route::get('publicacions', [PublicacioController::class, 'getPublicacions']);

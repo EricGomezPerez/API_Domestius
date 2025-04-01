@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->date('data');
             $table->text('detalls');
             $table->foreignId('usuari_id')->constrained('usuaris')->onDelete('cascade');
+            $table->unsignedBigInteger('animal_id'); // Sin restricción por ahora
             $table->timestamps();
         });
     }
