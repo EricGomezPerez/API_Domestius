@@ -45,7 +45,7 @@ class ProtectoraController extends Controller
      */
     public function getProtectora($id)
     {
-        $protectora = Protectora::with('user')->find($id);
+        $protectora = Protectora::with('usuari')->find($id);
 
         
         if (!$protectora) {
