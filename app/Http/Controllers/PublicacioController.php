@@ -33,7 +33,7 @@ class PublicacioController extends Controller
      */
     public function getPublicacio($id)
     {
-        $publicacio = Publicacio::with(['usuari', 'animals', 'interaccions'])->find($id);
+        $publicacio = Publicacio::with(['usuari', 'animal', 'interaccions'])->find($id);
                 
         if (!$publicacio) {
             return response()->json(['error' => 'Publicació no trobada'], 404);

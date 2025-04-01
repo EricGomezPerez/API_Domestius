@@ -16,24 +16,22 @@ class ProtectoraController extends Controller
     {
         $protectoras = Protectora::with(['usuari'])->get();
         
-        $protectoras->makeHidden(['password']);
-
-        
         
         foreach ($protectoras as $protectora) {
-
-
-
+            // Excluir el campo 'password' de la respuesta
+            $protectora->makeHidden(['password']);
+            // Añadimos datos del usuario si existe
+            if ($protectora->usuari) {
+                $protectora->username = $protectora->usuari->nom;
+                $protectora->user_email = $protectora->usuari->email;
+                $protectora->user_id = $protectora->usuari->id;
+                
+                // Excluir el campo 'password' del usuario
+                $protectora->usuari->makeHidden(['contrasenya']);
+            }
+            // Retornar la URL de la imagen
             if ($protectora->imatge) {
                 $protectora->imatge = url('/api/protectora/imatge/' . $protectora->id);
-            }
-            
-            if ($protectora->user) {
-                $protectora->username = $protectora->user->name;
-                $protectora->user_email = $protectora->user->email;
-                $protectora->user_id = $protectora->user->id;
-                
-                $protectora->user->makeHidden(['password']);
             }
         }
         
