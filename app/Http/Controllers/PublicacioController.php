@@ -34,11 +34,11 @@ class PublicacioController extends Controller
     public function getPublicacio($id)
     {
         $publicacio = Publicacio::with(['usuari', 'animal', 'interaccions'])->find($id);
-                
+
         if (!$publicacio) {
             return response()->json(['error' => 'Publicació no trobada'], 404);
         }
-        
+
         // Añadimos datos del usuario si existe
         if ($publicacio->usuari) {
             $publicacio->username = $publicacio->usuari->nom;
@@ -53,31 +53,40 @@ class PublicacioController extends Controller
      */
     public function createPublicacio(Request $request)
     {
-        $validatedData = $request->validate([
-            'tipus' => 'required|string|max:255',
-            'detalls' => 'required|string',
-            'data' => 'required|date',
-            'usuari_id' => 'required|integer|exists:usuaris,id',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'tipus' => 'required|string|max:255',
+                'detalls' => 'required|string',
+                'data' => 'required|date',
+                'usuari_id' => 'required|integer|exists:usuaris,id',
+                'animal_id' => 'nullable|integer|exists:animals,id',
+            ]);
 
-        $publicacio = new Publicacio;
-        $publicacio->tipus = $validatedData['tipus'];
-        $publicacio->detalls = $validatedData['detalls'];
-        $publicacio->data = $validatedData['data'];
-        $publicacio->usuari_id = $validatedData['usuari_id'];
+            $publicacio = new Publicacio;
+            $publicacio->tipus = $validatedData['tipus'];
+            $publicacio->detalls = $validatedData['detalls'];
+            $publicacio->data = $validatedData['data'];
+            $publicacio->usuari_id = $validatedData['usuari_id'];
 
-        $publicacio->save();
-
-        // Si hay un animal asociado (se envió en la petición pero no es parte del modelo como fillable)
-        if ($request->has('animal_id')) {
-            $animal = Animal::find($request->animal_id);
-            if ($animal) {
-                $animal->publicacio_id = $publicacio->id;
-                $animal->save();
+            if (isset($validatedData['animal_id'])) {
+                $publicacio->animal_id = $validatedData['animal_id'];
             }
-        }
 
-        return response()->json($publicacio, 201);
+            $publicacio->save();
+
+            // Si hay un animal asociado (se envió en la petición pero no es parte del modelo como fillable)
+            if ($request->has('animal_id')) {
+                $animal = Animal::find($request->animal_id);
+                if ($animal) {
+                    $animal->publicacio_id = $publicacio->id;
+                    $animal->save();
+                }
+            }
+
+            return response()->json($publicacio, 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al crear la publicació: ' . $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -86,7 +95,7 @@ class PublicacioController extends Controller
     public function updatePublicacio(Request $request, $id)
     {
         $publicacio = Publicacio::find($id);
-        
+
         if (!$publicacio) {
             return response()->json(['error' => 'Publicació no trobada'], 404);
         }
@@ -114,7 +123,7 @@ class PublicacioController extends Controller
                 $animalActual->publicacio_id = null;
                 $animalActual->save();
             }
-            
+
             // Establecer el nuevo animal
             if ($request->animal_id) {
                 $animal = Animal::find($request->animal_id);
@@ -134,7 +143,7 @@ class PublicacioController extends Controller
     public function deletePublicacio($id)
     {
         $publicacio = Publicacio::find($id);
-        
+
         if (!$publicacio) {
             return response()->json(['error' => 'Publicació no trobada'], 404);
         }
