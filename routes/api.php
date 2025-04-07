@@ -6,6 +6,7 @@ use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\ProtectoraController;
 use App\Http\Controllers\PublicacioController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\InteraccioController;
 
 
 
@@ -52,5 +53,17 @@ Route::group(['prefix' => 'v1'], function() {
 });
 
 Route::middleware('')->get('/v1/user-profile', function (Request $request) {
-    return response()->json($request->user());
+    try {
+        return response()->json($request->user());
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
 });
+
+Route::get('interaccions', [InteraccioController::class, 'getInteraccions']);
+Route::get('interaccio/{id}', [InteraccioController::class, 'getInteraccio']);
+Route::get('publicacio/{id}/interaccions', [InteraccioController::class, 'getInteraccionsByPublicacio']);
+Route::post('interaccio/create', [InteraccioController::class, 'createInteraccio']);
+Route::put('interaccio/{id}', [InteraccioController::class, 'updateInteraccio']);
+Route::delete('interaccio/{id}', [InteraccioController::class, 'deleteInteraccio']);
+Route::get('tipus-interaccions', [InteraccioController::class, 'getTipusInteraccions']);
