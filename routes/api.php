@@ -22,6 +22,8 @@ Route::delete('animal/delete/{id}', [AnimalController::class, 'deleteAnimal']);
 
 Route::get('animal/imatge/{id}', [AnimalController::class, 'getAnimalImatge']);
 
+Route::get('usuario/{id}/animales', [AnimalController::class, 'getAnimalesByUsuario']);
+
 
 Route::get('protectoras', [ProtectoraController::class, 'getProtectoras']);
 
@@ -45,6 +47,10 @@ Route::post('publicacio/create', [PublicacioController::class, 'createPublicacio
 Route::put('publicacio/update/{id}', [PublicacioController::class, 'updatePublicacio']);
 
 Route::delete('publicacio/delete/{id}', [PublicacioController::class, 'deletePublicacio']);
+
+Route::get('animal/{id}/publicacions', [PublicacioController::class, 'getPublicacionsByAnimal']);
+
+Route::get('usuari/{id}/publicacions', [PublicacioController::class, 'getPublicacionsByUsuari']);
 
 Route::group(['prefix' => 'v1'], function() {
     Route::post('login', [AuthController::class, 'login']);

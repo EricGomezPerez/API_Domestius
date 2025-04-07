@@ -159,4 +159,64 @@ class PublicacioController extends Controller
 
         return response()->json(['message' => 'Publicació eliminada correctament']);
     }
+
+    public function getPublicacionsByAnimal($animalId)
+{
+    // Verificar si el animal existe
+    $animal = Animal::find($animalId);
+    
+    if (!$animal) {
+        return response()->json(['error' => 'Animal no encontrado'], 404);
+    }
+    
+    // Obtener las publicaciones relacionadas con este animal
+    $publicacions = Publicacio::with(['usuari', 'interaccions'])
+        ->where('animal_id', $animalId)
+        ->get();
+    
+    // Añadir información del usuario y ocultar la contraseña
+    foreach ($publicacions as $publicacio) {
+        if ($publicacio->usuari) {
+            $publicacio->username = $publicacio->usuari->nom;
+            $publicacio->usuari->makeHidden(['contrasenya']);
+        }
+        
+        // También podemos añadir información básica del animal
+        $publicacio->nombre_animal = $animal->nom;
+        $publicacio->especie_animal = $animal->especie;
+    }
+    
+    return response()->json($publicacions);
+}
+
+    public function getPublicacionsByUsuari($usuariId)
+{
+    // Verificar si el usuario existe
+    $usuari = Usuari::find($usuariId);
+    
+    if (!$usuari) {
+        return response()->json(['error' => 'Usuario no encontrado'], 404);
+    }
+    
+    // Obtener las publicaciones relacionadas con este usuario
+    $publicacions = Publicacio::with(['animal', 'interaccions'])
+        ->where('usuari_id', $usuariId)
+        ->get();
+    
+    // Añadir información del usuario y ocultar la contraseña
+    foreach ($publicacions as $publicacio) {
+        if ($publicacio->usuari) {
+            $publicacio->username = $publicacio->usuari->nom;
+            $publicacio->usuari->makeHidden(['contrasenya']);
+        }
+        
+        // También podemos añadir información básica del animal
+        if ($publicacio->animal) {
+            $publicacio->nombre_animal = $publicacio->animal->nom;
+            $publicacio->especie_animal = $publicacio->animal->especie;
+        }
+    }
+    
+    return response()->json($publicacions);
+}
 }

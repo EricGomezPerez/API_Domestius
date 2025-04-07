@@ -7,6 +7,8 @@ use App\Models\Animal;
 use App\Models\Protectora;
 use App\Models\Geolocalitzacio;
 use App\Models\Publicacio;
+use App\Models\Usuari;
+use App\Models\Interaccio;
 
 class AnimalController extends Controller
 {
@@ -199,4 +201,43 @@ class AnimalController extends Controller
         
         return response()->json(['error' => 'Imagen no encontrada'], 404);
     }
+
+    public function getAnimalesByUsuario($userId)
+{
+    // Verificar si el usuario existe
+    $usuari = Usuari::find($userId);
+    
+    if (!$usuari) {
+        return response()->json(['error' => 'Usuario no encontrado'], 404);
+    }
+    
+    // Obtener IDs de las publicaciones del usuario
+    $publicacionesIds = Publicacio::where('usuari_id', $userId)->pluck('id')->toArray();
+    
+    // Obtener publicaciones con las que el usuario ha interactuado
+    $interaccionesPublicacionesIds = Interaccio::where('usuari_id', $userId)
+        ->pluck('publicacio_id')
+        ->unique()
+        ->toArray();
+    
+    // Combinar ambos arrays de IDs de publicaciones
+    $allPublicacionesIds = array_unique(array_merge($publicacionesIds, $interaccionesPublicacionesIds));
+    
+    // Obtener animales de las publicaciones propias
+    $animalesPropios = Animal::whereIn('publicacio_id', $allPublicacionesIds)
+        ->orWhereIn('id', function($query) use ($allPublicacionesIds) {
+            $query->select('animal_id')
+                  ->from('publicacions')
+                  ->whereIn('id', $allPublicacionesIds);
+        })
+        ->with(['protectora', 'geolocalitzacio', 'publicacio'])
+        ->get();
+    
+    // Agregar URL de la imagen
+    foreach ($animalesPropios as $animal) {
+        $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+    }
+    
+    return response()->json($animalesPropios);
+}
 }
