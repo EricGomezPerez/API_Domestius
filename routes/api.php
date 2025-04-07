@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\ProtectoraController;
 use App\Http\Controllers\PublicacioController;
+use App\Http\Controllers\Api\V1\AuthController;
+
 
 
 Route::get('animales', [AnimalController::class, 'getAnimales']);
@@ -42,3 +44,13 @@ Route::post('publicacio/create', [PublicacioController::class, 'createPublicacio
 Route::put('publicacio/update/{id}', [PublicacioController::class, 'updatePublicacio']);
 
 Route::delete('publicacio/delete/{id}', [PublicacioController::class, 'deletePublicacio']);
+
+Route::group(['prefix' => 'v1'], function() {
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('register', [AuthController::class, 'register']);
+    Route::delete('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+});
+
+Route::middleware('')->get('/v1/user-profile', function (Request $request) {
+    return response()->json($request->user());
+});

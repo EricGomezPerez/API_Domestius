@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Protectora;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class ProtectoraController extends Controller
