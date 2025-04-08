@@ -33,7 +33,7 @@ class ProtectorasSeeder extends Seeder
             $usuariId = DB::table('usuaris')->insertGetId([
                 'nom' => $nombre,
                 'email' => $faker->unique()->safeEmail,
-                'contrasenya' => Hash::make('password123'), // Contraseña segura para pruebas
+                'password' => Hash::make('password123'), // Contraseña segura para pruebas
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

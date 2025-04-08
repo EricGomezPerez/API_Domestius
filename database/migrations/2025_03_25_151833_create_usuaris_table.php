@@ -11,25 +11,13 @@ return new class extends Migration {
             $table->id();
             $table->string('nom');
             $table->string('email')->unique();
-            $table->string('contrasenya');
+            $table->string('password');
             $table->timestamps();
-        });
-
-
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
         });
     }
 
     public function down()
     {
         Schema::dropIfExists('usuaris');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
     }
 };

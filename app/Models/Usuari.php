@@ -12,17 +12,21 @@ class Usuari extends Authenticatable
     protected $table = 'usuaris';
 
     protected $fillable = [
-        'nom', 'email', 'contrasenya'
+        'nom', 'email', 'password'
     ];
 
     protected $hidden = [
-        'contrasenya',
+        'password',
+    ];
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     // Indica a Laravel que use el campo 'contrasenya' como contraseña
     public function getAuthPassword()
     {
-        return $this->contrasenya;
+        return $this->password;
     }
 
     // Relación con publicaciones
