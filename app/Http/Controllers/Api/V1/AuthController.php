@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\LoginRequest;
 use App\Http\Requests\V1\RegisterRequest;
-use App\Models\Usuari;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -33,17 +33,11 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        try{
-        $user = Usuari::create($request->validated());
+        $user = User::create($request->validated());
 
         return response()->json([
             'message' => 'Usuario registrado exitosamente.'
         ], Response::HTTP_CREATED);
-        } catch (\Exception $e) {
-            return response()->json([
-                'errors' => 'Error al registrar el usuario: ' . $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
     }
 
     public function logout(Request $request): JsonResponse
