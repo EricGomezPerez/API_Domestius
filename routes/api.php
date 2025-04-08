@@ -60,6 +60,8 @@ Route::delete('protectora/delete/{id}', [ProtectoraController::class, 'deletePro
 
 Route::get('protectora/imatge/{id}', [ProtectoraController::class, 'getProtectoraImatge']);
 
+Route::get('protectora/usuario/{usuarioId}', [ProtectoraController::class, 'getProtectoraByUsuario']);
+
 
 Route::get('publicacions', [PublicacioController::class, 'getPublicacions']);
 

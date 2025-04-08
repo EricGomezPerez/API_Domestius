@@ -217,4 +217,26 @@ public function updateProtectora(Request $request, $id)
         
         return response()->json(['error' => 'Imagen no encontrada'], 404);
     }
+
+    /**
+ * Obtener protectora por ID de usuario
+ */
+public function getProtectoraByUsuario($usuarioId)
+{
+    $protectora = Protectora::where('usuari_id', $usuarioId)->first();
+    
+    if (!$protectora) {
+        return response()->json(['error' => 'Protectora no encontrada para este usuario'], 404);
+    }
+    
+    // Excluir el campo 'password' de la respuesta
+    $protectora->makeHidden(['password']);
+    
+    // Retornar la URL de la imagen
+    if ($protectora->imatge) {
+        $protectora->imatge = url('/api/protectora/imatge/' . $protectora->id);
+    }
+    
+    return response()->json($protectora);
+}
 }
