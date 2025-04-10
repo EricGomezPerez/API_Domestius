@@ -11,7 +11,7 @@ class TipusInteraccio extends Model
     protected $table = 'tipus_interaccions';
 
     protected $fillable = [
-        'nom', 'descripcio'
+        'nom', 'descripcio', 'slug'
     ];
 
     // Relación con interacciones

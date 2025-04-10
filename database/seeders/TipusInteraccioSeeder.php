@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\TipusInteraccio;
+use Illuminate\Support\Str;
 
 class TipusInteraccioSeeder extends Seeder
 {
@@ -26,6 +27,8 @@ class TipusInteraccioSeeder extends Seeder
         ];
 
         foreach ($tipus as $tip) {
+            // Generar el slug a partir del nombre
+            $tip['slug'] = Str::slug($tip['nom']);
             TipusInteraccio::create($tip);
         }
     }

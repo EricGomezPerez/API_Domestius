@@ -10,6 +10,7 @@ return new class extends Migration {
         Schema::create('tipus_interaccions', function (Blueprint $table) {
             $table->id();
             $table->string('nom')->unique();
+            $table->string('slug')->unique();
             $table->string('descripcio');
             $table->timestamps();
         });
