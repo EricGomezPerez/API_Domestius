@@ -30,6 +30,8 @@ use App\Http\Controllers\ProtectoraController;
 use App\Http\Controllers\PublicacioController;
 /* use App\Http\Controllers\Api\V1\AuthController;
  */use App\Http\Controllers\InteraccioController;
+use App\Http\Controllers\GeolocalitzacioController;
+use App\Http\Controllers\TipusInteraccioController;
 
 
 
@@ -98,3 +100,5 @@ Route::post('interaccio/create', [InteraccioController::class, 'createInteraccio
 Route::put('interaccio/{id}', [InteraccioController::class, 'updateInteraccio']);
 Route::delete('interaccio/{id}', [InteraccioController::class, 'deleteInteraccio']);
 Route::get('tipus-interaccions', [InteraccioController::class, 'getTipusInteraccions']);
+
+Route::get('geolocalizaciones/latest', [GeolocalitzacioController::class, 'getLatestLocations']);
