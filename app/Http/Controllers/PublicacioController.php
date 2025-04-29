@@ -15,8 +15,9 @@ class PublicacioController extends Controller
      */
     public function getPublicacions()
     {
-        $publicacions = Publicacio::with(['usuari', 'animal', 'interaccions'])->get();
-
+        // Incluir la relación 'geolocalitzacio' a través de 'animal'
+        $publicacions = Publicacio::with(['usuari', 'animal.geolocalitzacio', 'interaccions'])->get();
+    
         foreach ($publicacions as $publicacio) {
             // Añadimos datos del usuario si existe
             if ($publicacio->usuari) {
@@ -24,7 +25,7 @@ class PublicacioController extends Controller
                 $publicacio->usuari->makeHidden(['contrasenya']);
             }
         }
-
+    
         return response()->json($publicacions);
     }
 
