@@ -71,49 +71,61 @@ class ProtectoraController extends Controller
  */
 public function createProtectora(Request $request)
 {
-    $validatedData = $request->validate([
-        'nombre' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8',
-        'direccion' => 'required|string|max:255',
-        'telefono' => 'required|string|max:20',
-        'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
-        'horario_apertura' => 'nullable|date_format:H:i',
-        'horario_cierre' => 'nullable|date_format:H:i',
-    ]);
+    try {
+        // Validar los datos de entrada
+        $validatedData = $request->validate([
+            'usuari_id' => 'required|exists:usuaris,id', // Validar que el usuario exista
+            'direccion' => 'required|string|max:255',
+            'telefono' => 'required|string|max:20',
+            'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
+            'horario_apertura' => 'nullable|date_format:H:i',
+            'horario_cierre' => 'nullable|date_format:H:i',
+        ]);
 
-    // Crear la protectora (que hereda de usuario)
-    $protectora = new Protectora();
-    $protectora->nombre = $validatedData['nombre'];
-    $protectora->email = $validatedData['email'];
-    $protectora->password = Hash::make($validatedData['password']);
-    $protectora->direccion = $validatedData['direccion'];
-    $protectora->telefono = $validatedData['telefono'];
-    $protectora->horario_apertura = $validatedData['horario_apertura'] ?? null;
-    $protectora->horario_cierre = $validatedData['horario_cierre'] ?? null;
-    
-    // Procesar la imagen si existe
-    if ($request->file('imatge')) {
-        $file = $request->file('imatge');
-        $extension = $file->getClientOriginalExtension();
-        $filename = strtolower($protectora->nombre . '_' . uniqid() . '.' . $extension);
-        $file->move(public_path(env('RUTA_IMATGES')), $filename);
-        $protectora->imatge = $filename;
+        // Crear la protectora
+        $protectora = new Protectora();
+        $protectora->usuari_id = $validatedData['usuari_id']; // Asociar al usuario
+        $protectora->direccion = $validatedData['direccion'];
+        $protectora->telefono = $validatedData['telefono'];
+        $protectora->horario_apertura = $validatedData['horario_apertura'] ?? null;
+        $protectora->horario_cierre = $validatedData['horario_cierre'] ?? null;
+
+        // Procesar la imagen si existe
+        if ($request->file('imatge')) {
+            $file = $request->file('imatge');
+            $extension = $file->getClientOriginalExtension();
+            $filename = strtolower('protectora_' . uniqid() . '.' . $extension);
+            $file->move(public_path(env('RUTA_IMATGES')), $filename);
+            $protectora->imatge = $filename;
+        }
+
+        $protectora->save();
+
+        // Excluir el campo 'password' de la respuesta
+        $protectora->makeHidden(['password']);
+
+        // Retornar la URL de la imagen
+        if ($protectora->imatge) {
+            $protectora->imatge = url('/api/protectora/imatge/' . $protectora->id);
+        }
+
+        return response()->json($protectora, 201);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Capturar errores de validación
+        return response()->json([
+            'error' => 'Error de validación',
+            'detalles' => $e->errors()
+        ], 422);
+
+    } catch (\Exception $e) {
+        // Capturar cualquier otro error
+        return response()->json([
+            'error' => 'Error al crear la protectora',
+            'mensaje' => $e->getMessage()
+        ], 500);
     }
-    
-    $protectora->save();
-
-    // Excluir el campo 'password' de la respuesta
-    $protectora->makeHidden(['password']);
-    
-    // Retornar la URL de la imagen
-    if ($protectora->imatge) {
-        $protectora->imatge = url('/api/protectora/imatge/' . $protectora->id);
-    }
-
-    return response()->json($protectora, 201);
 }
-
 /**
  * Actualizar una protectora existente
  */

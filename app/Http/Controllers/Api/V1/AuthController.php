@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\LoginRequest;
 use App\Http\Requests\V1\RegisterRequest;
 use App\Models\User;
+use App\Models\Usuari;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -33,10 +34,11 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        $user = User::create($request->validated());
-
+        $user = Usuari::create($request->validated());
+    
         return response()->json([
-            'message' => 'Usuario registrado exitosamente.'
+            'message' => 'Usuario registrado exitosamente.',
+            'id' => $user->id // Devolver el ID del usuario recién creado
         ], Response::HTTP_CREATED);
     }
 

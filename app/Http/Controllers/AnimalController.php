@@ -36,8 +36,8 @@ class AnimalController extends Controller
     }
     
     public function createAnimal(Request $request)
-    {
-        try{
+{
+    try {
         $validatedData = $request->validate([
             'nom' => 'required|string|max:255',
             'edat' => 'required|integer',
@@ -48,9 +48,12 @@ class AnimalController extends Controller
             'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
             'protectora_id' => 'required|integer|exists:protectores,id',
             'publicacio_id' => 'nullable|integer|exists:publicacions,id',
-            'geolocalitzacio_id' => 'nullable|integer|exists:geolocalitzacions,id',
+            'latitud' => 'required|string',
+            'longitud' => 'required|string',
+            'nombre' => 'required|string|max:255',
         ]);
 
+        // Crear el animal
         $animal = new Animal;
         $animal->nom = $validatedData['nom'];
         $animal->edat = $validatedData['edat'];
@@ -60,8 +63,7 @@ class AnimalController extends Controller
         $animal->estat = $validatedData['estat'];
         $animal->protectora_id = $validatedData['protectora_id'];
         $animal->publicacio_id = $validatedData['publicacio_id'] ?? null;
-        $animal->geolocalitzacio_id = $validatedData['geolocalitzacio_id'] ?? null;
-        
+
         if ($request->file('imatge')) {
             $file = $request->file('imatge');
             $extension = $file->getClientOriginalExtension();
@@ -69,24 +71,26 @@ class AnimalController extends Controller
             $file->move(public_path(env('RUTA_IMATGES')), $filename);
             $animal->imatge = $filename;
         }
-        
+
         $animal->save();
-        
-        // Si se proporcionan datos de geolocalización, guardarlos
-        if ($request->has('latitud') && $request->has('longitud')) {
-            $geolocalizacion = new Geolocalitzacio([
-                'animal_id' => $animal->id,
-                'latitud' => $request->input('latitud'),
-                'longitud' => $request->input('longitud')
-            ]);
-            $geolocalizacion->save();
-        }
-        
+
+        // Crear la geolocalización y asociarla al animal
+        $geolocalizacion = new Geolocalitzacio([
+            'latitud' => $validatedData['latitud'],
+            'longitud' => $validatedData['longitud'],
+            'nombre' => $validatedData['nombre'],
+        ]);
+        $geolocalizacion->save();
+
+        // Asociar el ID de la geolocalización al animal
+        $animal->geolocalitzacio_id = $geolocalizacion->id;
+        $animal->save();
+
         return response()->json($animal, 201);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al crear el animal: ' . $e->getMessage()], 500);
-        }
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al crear el animal: ' . $e->getMessage()], 500);
     }
+}
     
     public function updateAnimal(Request $request, $id)
     {
