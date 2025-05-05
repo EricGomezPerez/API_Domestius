@@ -15,14 +15,23 @@ class PublicacioController extends Controller
      */
     public function getPublicacions()
     {
-        // Incluir la relación 'geolocalitzacio' a través de 'animal'
-        $publicacions = Publicacio::with(['usuari', 'animal.geolocalitzacio', 'interaccions'])->get();
+        // Incluir la relación 'geolocalitzacio' a través de 'animal' y también 'tipusInteraccio' en interacciones
+        $publicacions = Publicacio::with(['usuari', 'animal.geolocalitzacio', 'interaccions.tipusInteraccio'])->get();
     
         foreach ($publicacions as $publicacio) {
             // Añadimos datos del usuario si existe
             if ($publicacio->usuari) {
                 $publicacio->username = $publicacio->usuari->nom;
                 $publicacio->usuari->makeHidden(['contrasenya']);
+            }
+            
+            // Añadir el slug a cada interacción
+            if ($publicacio->interaccions) {
+                foreach ($publicacio->interaccions as $interaccio) {
+                    if ($interaccio->tipusInteraccio) {
+                        $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
+                    }
+                }
             }
         }
     
@@ -34,7 +43,7 @@ class PublicacioController extends Controller
      */
     public function getPublicacio($id)
     {
-        $publicacio = Publicacio::with(['usuari', 'animal', 'interaccions'])->find($id);
+        $publicacio = Publicacio::with(['usuari', 'animal', 'interaccions.tipusInteraccio'])->find($id);
 
         if (!$publicacio) {
             return response()->json(['error' => 'Publicació no trobada'], 404);
@@ -44,6 +53,15 @@ class PublicacioController extends Controller
         if ($publicacio->usuari) {
             $publicacio->username = $publicacio->usuari->nom;
             $publicacio->usuari->makeHidden(['contrasenya']);
+        }
+        
+        // Añadir el slug a cada interacción
+        if ($publicacio->interaccions) {
+            foreach ($publicacio->interaccions as $interaccio) {
+                if ($interaccio->tipusInteraccio) {
+                    $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
+                }
+            }
         }
 
         return response()->json($publicacio);
@@ -162,62 +180,80 @@ class PublicacioController extends Controller
     }
 
     public function getPublicacionsByAnimal($animalId)
-{
-    // Verificar si el animal existe
-    $animal = Animal::find($animalId);
-    
-    if (!$animal) {
-        return response()->json(['error' => 'Animal no encontrado'], 404);
-    }
-    
-    // Obtener las publicaciones relacionadas con este animal
-    $publicacions = Publicacio::with(['usuari', 'interaccions'])
-        ->where('animal_id', $animalId)
-        ->get();
-    
-    // Añadir información del usuario y ocultar la contraseña
-    foreach ($publicacions as $publicacio) {
-        if ($publicacio->usuari) {
-            $publicacio->username = $publicacio->usuari->nom;
-            $publicacio->usuari->makeHidden(['contrasenya']);
+    {
+        // Verificar si el animal existe
+        $animal = Animal::find($animalId);
+        
+        if (!$animal) {
+            return response()->json(['error' => 'Animal no encontrado'], 404);
         }
         
-        // También podemos añadir información básica del animal
-        $publicacio->nombre_animal = $animal->nom;
-        $publicacio->especie_animal = $animal->especie;
+        // Obtener las publicaciones relacionadas con este animal
+        $publicacions = Publicacio::with(['usuari', 'interaccions.tipusInteraccio'])
+            ->where('animal_id', $animalId)
+            ->get();
+        
+        // Añadir información del usuario y ocultar la contraseña
+        foreach ($publicacions as $publicacio) {
+            if ($publicacio->usuari) {
+                $publicacio->username = $publicacio->usuari->nom;
+                $publicacio->usuari->makeHidden(['contrasenya']);
+            }
+            
+            // También podemos añadir información básica del animal
+            $publicacio->nombre_animal = $animal->nom;
+            $publicacio->especie_animal = $animal->especie;
+            
+            // Añadir el slug a cada interacción
+            if ($publicacio->interaccions) {
+                foreach ($publicacio->interaccions as $interaccio) {
+                    if ($interaccio->tipusInteraccio) {
+                        $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
+                    }
+                }
+            }
+        }
+        
+        return response()->json($publicacions);
     }
-    
-    return response()->json($publicacions);
-}
 
     public function getPublicacionsByUsuari($usuariId)
-{
-    // Verificar si el usuario existe
-    $usuari = Usuari::find($usuariId);
-    
-    if (!$usuari) {
-        return response()->json(['error' => 'Usuario no encontrado'], 404);
-    }
-    
-    // Obtener las publicaciones relacionadas con este usuario
-    $publicacions = Publicacio::with(['animal', 'interaccions'])
-        ->where('usuari_id', $usuariId)
-        ->get();
-    
-    // Añadir información del usuario y ocultar la contraseña
-    foreach ($publicacions as $publicacio) {
-        if ($publicacio->usuari) {
-            $publicacio->username = $publicacio->usuari->nom;
-            $publicacio->usuari->makeHidden(['contrasenya']);
+    {
+        // Verificar si el usuario existe
+        $usuari = Usuari::find($usuariId);
+        
+        if (!$usuari) {
+            return response()->json(['error' => 'Usuario no encontrado'], 404);
         }
         
-        // También podemos añadir información básica del animal
-        if ($publicacio->animal) {
-            $publicacio->nombre_animal = $publicacio->animal->nom;
-            $publicacio->especie_animal = $publicacio->animal->especie;
+        // Obtener las publicaciones relacionadas con este usuario
+        $publicacions = Publicacio::with(['animal', 'interaccions.tipusInteraccio'])
+            ->where('usuari_id', $usuariId)
+            ->get();
+        
+        // Añadir información del usuario y ocultar la contraseña
+        foreach ($publicacions as $publicacio) {
+            if ($publicacio->usuari) {
+                $publicacio->username = $publicacio->usuari->nom;
+                $publicacio->usuari->makeHidden(['contrasenya']);
+            }
+            
+            // También podemos añadir información básica del animal
+            if ($publicacio->animal) {
+                $publicacio->nombre_animal = $publicacio->animal->nom;
+                $publicacio->especie_animal = $publicacio->animal->especie;
+            }
+            
+            // Añadir el slug a cada interacción
+            if ($publicacio->interaccions) {
+                foreach ($publicacio->interaccions as $interaccio) {
+                    if ($interaccio->tipusInteraccio) {
+                        $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
+                    }
+                }
+            }
         }
+        
+        return response()->json($publicacions);
     }
-    
-    return response()->json($publicacions);
-}
 }
