@@ -9,88 +9,110 @@ use App\Models\Geolocalitzacio;
 use App\Models\Publicacio;
 use App\Models\Usuari;
 use App\Models\Interaccio;
+use Illuminate\Validation\Rule;
 
 class AnimalController extends Controller
 {
     public function getAnimales()
-{
-    $animales = Animal::with(['protectora', 'geolocalitzacio', 'publicacio'])->get();
+    {
+        $animales = Animal::with(['protectora', 'usuari', 'geolocalitzacio', 'publicacio'])->get();
 
-    foreach ($animales as $animal) {
-        $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+        foreach ($animales as $animal) {
+            $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+            
+            // Añadir información del propietario
+            if ($animal->protectora_id) {
+                $animal->propietario_tipo = 'protectora';
+                $animal->propietario_nombre = $animal->protectora->nom;
+            } else {
+                $animal->propietario_tipo = 'usuario';
+                $animal->propietario_nombre = $animal->usuari->nom;
+            }
+        }
+
+        return response()->json($animales);
     }
-
-    return response()->json($animales);
-}
 
     public function getAnimal($id)
     {
-        $animal = Animal::with(['protectora', 'geolocalitzacio', 'publicacio'])->find($id);
+        $animal = Animal::with(['protectora', 'usuari', 'geolocalitzacio', 'publicacio'])->find($id);
                 
         if (!$animal) {
             return response()->json(['error' => 'Animal no encontrado'], 404);
         }
         
         $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+        
+        // Añadir información del propietario
+        if ($animal->protectora_id) {
+            $animal->propietario_tipo = 'protectora';
+            $animal->propietario_nombre = $animal->protectora->nom;
+        } else {
+            $animal->propietario_tipo = 'usuario';
+            $animal->propietario_nombre = $animal->usuari->nom;
+        }
+        
         return response()->json($animal);
     }
     
     public function createAnimal(Request $request)
-{
-    try {
-        $validatedData = $request->validate([
-            'nom' => 'required|string|max:255',
-            'edat' => 'required|integer',
-            'especie' => 'required|string|max:255',
-            'raça' => 'required|string|max:255',
-            'descripcio' => 'nullable|string',
-            'estat' => 'required|string',
-            'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
-            'protectora_id' => 'required|integer|exists:protectores,id',
-            'publicacio_id' => 'nullable|integer|exists:publicacions,id',
-            'latitud' => 'required|string',
-            'longitud' => 'required|string',
-            'nombre' => 'required|string|max:255',
-        ]);
+    {
+        try {
+            $validatedData = $request->validate([
+                'nom' => 'required|string|max:255',
+                'edat' => 'required|integer',
+                'especie' => 'required|string|max:255',
+                'raça' => 'required|string|max:255',
+                'descripcio' => 'nullable|string',
+                'estat' => 'required|string',
+                'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
+                'usuari_id' => 'required_without:protectora_id|nullable|integer|exists:usuaris,id',
+                'protectora_id' => 'required_without:usuari_id|nullable|integer|exists:protectoras,id',
+                'publicacio_id' => 'nullable|integer|exists:publicacions,id',
+                'latitud' => 'required|string',
+                'longitud' => 'required|string',
+                'nombre' => 'required|string|max:255',
+            ]);
 
-        // Crear el animal
-        $animal = new Animal;
-        $animal->nom = $validatedData['nom'];
-        $animal->edat = $validatedData['edat'];
-        $animal->especie = $validatedData['especie'];
-        $animal->raça = $validatedData['raça'];
-        $animal->descripcio = $validatedData['descripcio'] ?? null;
-        $animal->estat = $validatedData['estat'];
-        $animal->protectora_id = $validatedData['protectora_id'];
-        $animal->publicacio_id = $validatedData['publicacio_id'] ?? null;
+            // Crear el animal
+            $animal = new Animal;
+            $animal->nom = $validatedData['nom'];
+            $animal->edat = $validatedData['edat'];
+            $animal->especie = $validatedData['especie'];
+            $animal->raça = $validatedData['raça'];
+            $animal->descripcio = $validatedData['descripcio'] ?? null;
+            $animal->estat = $validatedData['estat'];
+            $animal->usuari_id = $validatedData['usuari_id'] ?? null;
+            $animal->protectora_id = $validatedData['protectora_id'] ?? null;
+            $animal->publicacio_id = $validatedData['publicacio_id'] ?? null;
 
-        if ($request->file('imatge')) {
-            $file = $request->file('imatge');
-            $extension = $file->getClientOriginalExtension();
-            $filename = strtolower($animal->nom . '_' . $animal->raça . '_' . uniqid() . '.' . $extension);
-            $file->move(public_path(env('RUTA_IMATGES')), $filename);
-            $animal->imatge = $filename;
+            if ($request->file('imatge')) {
+                $file = $request->file('imatge');
+                $extension = $file->getClientOriginalExtension();
+                $filename = strtolower($animal->nom . '_' . $animal->raça . '_' . uniqid() . '.' . $extension);
+                $file->move(public_path(env('RUTA_IMATGES')), $filename);
+                $animal->imatge = $filename;
+            }
+
+            $animal->save();
+
+            // Crear la geolocalización y asociarla al animal
+            $geolocalizacion = new Geolocalitzacio([
+                'latitud' => $validatedData['latitud'],
+                'longitud' => $validatedData['longitud'],
+                'nombre' => $validatedData['nombre'],
+            ]);
+            $geolocalizacion->save();
+
+            // Asociar el ID de la geolocalización al animal
+            $animal->geolocalitzacio_id = $geolocalizacion->id;
+            $animal->save();
+
+            return response()->json($animal, 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al crear el animal: ' . $e->getMessage()], 500);
         }
-
-        $animal->save();
-
-        // Crear la geolocalización y asociarla al animal
-        $geolocalizacion = new Geolocalitzacio([
-            'latitud' => $validatedData['latitud'],
-            'longitud' => $validatedData['longitud'],
-            'nombre' => $validatedData['nombre'],
-        ]);
-        $geolocalizacion->save();
-
-        // Asociar el ID de la geolocalización al animal
-        $animal->geolocalitzacio_id = $geolocalizacion->id;
-        $animal->save();
-
-        return response()->json($animal, 201);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Error al crear el animal: ' . $e->getMessage()], 500);
     }
-}
     
     public function updateAnimal(Request $request, $id)
     {
@@ -109,44 +131,32 @@ class AnimalController extends Controller
             'ubicacio' => 'nullable|string',
             'estat' => 'sometimes|required|string',
             'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
-            'protectora_id' => 'sometimes|required|integer|exists:protectoras,id',
-            'publicacio_id' => 'nullable|integer|exists:publicacios,id',
+            'usuari_id' => 'nullable|integer|exists:usuaris,id',
+            'protectora_id' => 'nullable|integer|exists:protectoras,id',
+            'publicacio_id' => 'nullable|integer|exists:publicacions,id',
         ]);
         
-        if (isset($validatedData['nom'])) {
-            $animal->nom = $validatedData['nom'];
-        }
+        // Actualizar campos básicos
+        if (isset($validatedData['nom'])) $animal->nom = $validatedData['nom'];
+        if (isset($validatedData['edat'])) $animal->edat = $validatedData['edat'];
+        if (isset($validatedData['especie'])) $animal->especie = $validatedData['especie'];
+        if (isset($validatedData['raça'])) $animal->raça = $validatedData['raça'];
+        if (isset($validatedData['descripcio'])) $animal->descripcio = $validatedData['descripcio'];
+        if (isset($validatedData['ubicacio'])) $animal->ubicacio = $validatedData['ubicacio'];
+        if (isset($validatedData['estat'])) $animal->estat = $validatedData['estat'];
+        if (isset($validatedData['publicacio_id'])) $animal->publicacio_id = $validatedData['publicacio_id'];
         
-        if (isset($validatedData['edat'])) {
-            $animal->edat = $validatedData['edat'];
-        }
-        
-        if (isset($validatedData['especie'])) {
-            $animal->especie = $validatedData['especie'];
-        }
-        
-        if (isset($validatedData['raça'])) {
-            $animal->raça = $validatedData['raça'];
-        }
-        
-        if (isset($validatedData['descripcio'])) {
-            $animal->descripcio = $validatedData['descripcio'];
-        }
-        
-        if (isset($validatedData['ubicacio'])) {
-            $animal->ubicacio = $validatedData['ubicacio'];
-        }
-        
-        if (isset($validatedData['estat'])) {
-            $animal->estat = $validatedData['estat'];
-        }
-        
+        // Actualizar el propietario (protectora o usuario)
         if (isset($validatedData['protectora_id'])) {
             $animal->protectora_id = $validatedData['protectora_id'];
+            // Si se establece una protectora, eliminar la referencia al usuario
+            $animal->usuari_id = null;
         }
         
-        if (isset($validatedData['publicacio_id'])) {
-            $animal->publicacio_id = $validatedData['publicacio_id'];
+        if (isset($validatedData['usuari_id'])) {
+            $animal->usuari_id = $validatedData['usuari_id'];
+            // Si se establece un usuario, eliminar la referencia a la protectora
+            $animal->protectora_id = null;
         }
         
         if ($request->file('imatge')) {
@@ -164,6 +174,9 @@ class AnimalController extends Controller
             $geolocalizacion = Geolocalitzacio::firstOrNew(['animal_id' => $animal->id]);
             $geolocalizacion->latitud = $request->input('latitud');
             $geolocalizacion->longitud = $request->input('longitud');
+            if ($request->has('nombre')) {
+                $geolocalizacion->nombre = $request->input('nombre');
+            }
             $geolocalizacion->save();
         }
 
@@ -243,5 +256,38 @@ class AnimalController extends Controller
     }
     
     return response()->json($animalesPropios);
+}
+
+public function getAnimalesPropiosByUsuario($usuariId)
+{
+    // Verificar si el usuario existe
+    $usuari = Usuari::find($usuariId);
+    
+    if (!$usuari) {
+        return response()->json(['error' => 'Usuario no encontrado'], 404);
+    }
+    
+    // Obtener los animales que pertenecen directamente al usuario
+    $animales = Animal::with(['geolocalitzacio', 'publicacio'])
+        ->where('usuari_id', $usuariId)
+        ->get();
+    
+    // Agregar URL de la imagen y más información
+    foreach ($animales as $animal) {
+        $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+        $animal->propietario_tipo = 'usuario';
+        $animal->propietario_nombre = $usuari->nom;
+        
+        // Añadir información de la publicación si existe
+        if ($animal->publicacio) {
+            $animal->tiene_publicacion = true;
+            $animal->publicacion_tipo = $animal->publicacio->tipus;
+            $animal->publicacion_fecha = $animal->publicacio->data;
+        } else {
+            $animal->tiene_publicacion = false;
+        }
+    }
+    
+    return response()->json($animales);
 }
 }

@@ -29,7 +29,7 @@ class AnimalesSeeder extends Seeder
         $estados = ['Disponible', 'En Adopción', 'Adoptado', 'En Tratamiento', 'Reservado'];
         
         // Obtenemos los IDs de las protectoras existentes
-        $protectoraIds = DB::table('protectores')->pluck('id')->toArray();
+        $usuariIds = DB::table('usuaris')->pluck('id')->toArray();
         
         for ($i = 0; $i < 6; $i++) {
             // Elegimos una especie aleatoria
@@ -46,7 +46,7 @@ class AnimalesSeeder extends Seeder
                 'descripcio' => $faker->paragraph,
                 'estat' => $faker->randomElement($estados),
                 'imatge' => 'perro1.jpg',
-                'protectora_id' => $faker->randomElement($protectoraIds),
+                'usuari_id' => $faker->randomElement($usuariIds),
                 'publicacio_id' => null, // Asumimos que inicialmente no tienen publicación
                 'geolocalitzacio_id' => null, // Asumimos que inicialmente no tienen geolocalización
                 'created_at' => now(),

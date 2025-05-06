@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Protectora;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Animal;
 
 class ProtectoraController extends Controller
 {
@@ -250,5 +251,27 @@ public function getProtectoraByUsuario($usuarioId)
     }
     
     return response()->json($protectora);
+}
+
+public function getAnimalesByProtectora($protectoraId)
+{
+    // Verificar si la protectora existe
+    $protectora = Protectora::find($protectoraId);
+    
+    if (!$protectora) {
+        return response()->json(['error' => 'Protectora no encontrada'], 404);
+    }
+    
+    // Obtener los animales de la protectora
+    $animales = Animal::with(['geolocalitzacio', 'publicacio'])
+        ->where('protectora_id', $protectoraId)
+        ->get();
+    
+    // Añadir URL de la imagen
+    foreach ($animales as $animal) {
+        $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+    }
+    
+    return response()->json($animales);
 }
 }

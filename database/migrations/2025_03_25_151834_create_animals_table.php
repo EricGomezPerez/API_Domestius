@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->text('descripcio')->nullable();
             $table->string('estat')->default('disponible');
             $table->string('imatge')->nullable();
-            $table->foreignId('protectora_id')->nullable()->constrained('protectores')->onDelete('set null');
+            $table->foreignId('usuari_id')->nullable()->constrained('usuaris')->onDelete('set null');
             $table->foreignId('publicacio_id')->nullable()->constrained('publicacions')->onDelete('set null');
             $table->foreignId('geolocalitzacio_id')->nullable()->constrained('geolocalitzacions')->onDelete('set null');
             $table->timestamps();

@@ -47,6 +47,8 @@ Route::get('animal/imatge/{id}', [AnimalController::class, 'getAnimalImatge']);
 
 Route::get('usuario/{id}/animales', [AnimalController::class, 'getAnimalesByUsuario']);
 
+Route::get('usuario/{id}/animales-propios', [AnimalController::class, 'getAnimalesPropiosByUsuario']);
+
 
 Route::get('protectoras', [ProtectoraController::class, 'getProtectoras']);
 
@@ -61,6 +63,9 @@ Route::delete('protectora/delete/{id}', [ProtectoraController::class, 'deletePro
 Route::get('protectora/imatge/{id}', [ProtectoraController::class, 'getProtectoraImatge']);
 
 Route::get('protectora/usuario/{usuarioId}', [ProtectoraController::class, 'getProtectoraByUsuario']);
+
+Route::get('protectora/{id}/animales', [ProtectoraController::class, 'getAnimalesByProtectora']);
+
 
 
 Route::get('publicacions', [PublicacioController::class, 'getPublicacions']);
