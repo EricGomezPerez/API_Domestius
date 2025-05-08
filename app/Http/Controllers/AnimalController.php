@@ -67,7 +67,7 @@ class AnimalController extends Controller
                 'estat' => 'required|string',
                 'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
                 'usuari_id' => 'required_without:protectora_id|nullable|integer|exists:usuaris,id',
-                'protectora_id' => 'required_without:usuari_id|nullable|integer|exists:protectoras,id',
+                'protectora_id' => 'required_without:usuari_id|nullable|integer|exists:protectores,id',
                 'publicacio_id' => 'nullable|integer|exists:publicacions,id',
                 'latitud' => 'required|string',
                 'longitud' => 'required|string',
@@ -132,7 +132,7 @@ class AnimalController extends Controller
             'estat' => 'sometimes|required|string',
             'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
             'usuari_id' => 'nullable|integer|exists:usuaris,id',
-            'protectora_id' => 'nullable|integer|exists:protectoras,id',
+            'protectora_id' => 'nullable|integer|exists:protectores,id',
             'publicacio_id' => 'nullable|integer|exists:publicacions,id',
         ]);
         
