@@ -19,6 +19,9 @@ Route::group(['prefix' => 'v1'], function() {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
     Route::delete('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::post('/password-reset', [AuthController::class, 'sendPasswordResetLink']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 });
 
 Route::middleware('auth:sanctum')->get('/v1/user-profile', function (Request $request) {
