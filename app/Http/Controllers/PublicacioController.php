@@ -42,30 +42,31 @@ class PublicacioController extends Controller
      * Obtener una publicación específica por ID
      */
     public function getPublicacio($id)
-    {
-        $publicacio = Publicacio::with(['usuari', 'animal', 'interaccions.tipusInteraccio'])->find($id);
+{
+    $publicacio = Publicacio::with(['usuari', 'animal', 'interaccions.tipusInteraccio'])->find($id);
 
-        if (!$publicacio) {
-            return response()->json(['error' => 'Publicació no trobada'], 404);
-        }
-
-        // Añadimos datos del usuario si existe
-        if ($publicacio->usuari) {
-            $publicacio->username = $publicacio->usuari->nom;
-            $publicacio->usuari->makeHidden(['contrasenya']);
-        }
-        
-        // Añadir el slug a cada interacción
-        if ($publicacio->interaccions) {
-            foreach ($publicacio->interaccions as $interaccio) {
-                if ($interaccio->tipusInteraccio) {
-                    $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
-                }
-            }
-        }
-
-        return response()->json($publicacio);
+    if (!$publicacio) {
+        return response()->json(['error' => 'Publicació no trobada'], 404);
     }
+
+    // Añadimos datos del usuario si existe
+    if ($publicacio->usuari) {
+        $publicacio->username = $publicacio->usuari->nom;
+        $publicacio->usuari->makeHidden(['contrasenya']);
+    }
+    
+    // Añadir el slug a cada interacción y asegurarse que hora_creacio está disponible
+    if ($publicacio->interaccions) {
+        foreach ($publicacio->interaccions as $interaccio) {
+            if ($interaccio->tipusInteraccio) {
+                $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
+            }
+            // La hora ya estará incluida por el accessor 'hora_creacio'
+        }
+    }
+
+    return response()->json($publicacio);
+}
 
     /**
      * Crear una nueva publicación

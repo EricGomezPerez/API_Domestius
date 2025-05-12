@@ -14,22 +14,22 @@ class InteraccioController extends Controller
  * Obtener todas las interacciones
  */
 public function getInteraccions()
-{
-    $interaccions = Interaccio::with(['usuari', 'publicacio', 'tipusInteraccio'])->get();
-    
-    foreach ($interaccions as $interaccio) {
-        if ($interaccio->usuari) {
-            $interaccio->usuari->makeHidden(['contrasenya']);
+    {
+        $interaccions = Interaccio::with(['usuari', 'publicacio', 'tipusInteraccio'])->get();
+        
+        foreach ($interaccions as $interaccio) {
+            if ($interaccio->usuari) {
+                $interaccio->usuari->makeHidden(['contrasenya']);
+            }
+            
+            // Añadir el slug del tipo de interacción a la respuesta
+            if ($interaccio->tipusInteraccio) {
+                $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
+            }
         }
         
-        // Añadir el slug del tipo de interacción a la respuesta
-        if ($interaccio->tipusInteraccio) {
-            $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
-        }
+        return response()->json($interaccions);
     }
-    
-    return response()->json($interaccions);
-}
     
  /**
  * Obtener una interacción específica
@@ -98,10 +98,8 @@ public function getInteraccionsByPublicacio($publicacioId)
                 'detalls' => 'nullable|string'
             ]);
             
-            // Si no se proporciona fecha, usar la actual
-            if (!isset($validatedData['data'])) {
-                $validatedData['data'] = now();
-            }
+            // Siempre establecer la fecha actual si no se proporciona
+            $validatedData['data'] = $request->input('data', now()->toDateString());
             
             $interaccio = Interaccio::create($validatedData);
             
