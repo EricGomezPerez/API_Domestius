@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChatController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -101,3 +103,16 @@ Route::post('interaccio/create', [InteraccioController::class, 'createInteraccio
 Route::put('interaccio/{id}', [InteraccioController::class, 'updateInteraccio']);
 Route::delete('interaccio/{id}', [InteraccioController::class, 'deleteInteraccio']);
 Route::get('tipus-interaccions', [InteraccioController::class, 'getTipusInteraccions']);
+
+
+/* Route::get('/user-with-image/{id}', [ChatController::class, 'getUserWithImage']); */
+Route::post('chat/upsert-user', [ChatController::class, 'upsertUser']);
+Route::post('chat/token', [ChatController::class, 'createToken']);
+Route::post('chat/message', [ChatController::class, 'sendMessage']);
+Route::get('chat/search', [ChatController::class, 'searchUsers']);
+Route::options('{any}', function (Request $request) {
+    return response()->json(['status' => 'OK'], 200)
+        ->header('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE')
+        ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+})->where('any', '.*');

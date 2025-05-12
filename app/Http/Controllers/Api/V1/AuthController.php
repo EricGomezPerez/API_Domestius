@@ -14,34 +14,48 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use GetStream\StreamChat\Client;
 
 class AuthController extends Controller
 {
     public function login(LoginRequest $request): JsonResponse
     {
-        if (! Auth::attempt($request->validated())) {
+        if (!Auth::attempt($request->validated())) {
             return response()->json([
                 'errors' => 'Credenciales incorrectas.'
             ], Response::HTTP_UNAUTHORIZED);
         }
-
+    
         $user = $request->user();
         $userToken = $user->createToken('AppToken')->plainTextToken;
-
+    
+        
+        $client = new Client(env('STREAM_API_KEY'), env('STREAM_API_SECRET'));
+        $client->upsertUser([
+            'id' => (string) $user->id,
+            'name' => $user->nom,
+        ]);
+    
         return response()->json([
             'message' => 'Se ha iniciado sesión correctamente.',
             'token' => $userToken,
-            'user' => $user
+            'user' => $user,
         ], Response::HTTP_OK);
     }
-
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = Usuari::create($request->validated());
     
+        
+        $client = new Client(env('STREAM_API_KEY'), env('STREAM_API_SECRET'));
+        $client->upsertUser([
+            'id' => (string) $user->id, 
+            'name' => $user->nom, 
+        ]);
+    
         return response()->json([
             'message' => 'Usuario registrado exitosamente.',
-            'id' => $user->id 
+            'id' => $user->id,
         ], Response::HTTP_CREATED);
     }
 
