@@ -61,18 +61,35 @@ class AnimalController extends Controller
         $animal->raça = $validatedData['raça'];
         $animal->descripcio = $validatedData['descripcio'] ?? null;
         $animal->estat = $validatedData['estat'];
-        $animal->protectora_id = $validatedData['protectora_id'];
+        $animal->protectora_id = $validatedData['protectora_id'] ?? null; // Aquí está la corrección
         $animal->publicacio_id = $validatedData['publicacio_id'] ?? null;
 
-        if ($request->file('imatge')) {
+        // Guardar el animal primero para tener un ID
+        $animal->save();
+
+        // Manejo mejorado de la imagen
+        if ($request->hasFile('imatge') && $request->file('imatge')->isValid()) {
             $file = $request->file('imatge');
             $extension = $file->getClientOriginalExtension();
-            $filename = strtolower($animal->nom . '_' . $animal->raça . '_' . uniqid() . '.' . $extension);
-            $file->move(public_path(env('RUTA_IMATGES')), $filename);
-            $animal->imatge = $filename;
+            
+            // Usar ID en lugar de nombre para evitar caracteres especiales
+            $filename = 'animal_' . $animal->id . '_' . uniqid() . '.' . $extension;
+            
+            // Asegurarse de que el directorio existe
+            $uploadPath = env('RUTA_IMATGES', 'uploads');
+            $fullPath = public_path($uploadPath);
+            
+            if (!file_exists($fullPath)) {
+                mkdir($fullPath, 0755, true);
+            }
+            
+            if ($file->move($fullPath, $filename)) {
+                $animal->imatge = $filename;
+                $animal->save();
+            } else {
+                throw new \Exception("No se pudo mover el archivo al directorio destino.");
+            }
         }
-
-        $animal->save();
 
         // Crear la geolocalización y asociarla al animal
         $geolocalizacion = new Geolocalitzacio([
@@ -240,6 +257,31 @@ class AnimalController extends Controller
     // Agregar URL de la imagen
     foreach ($animalesPropios as $animal) {
         $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+    }
+    
+    return response()->json($animalesPropios);
+}
+
+public function getAnimalesPropiosByUsuario($userId)
+{
+    // Verificar si el usuario existe
+    $usuari = Usuari::find($userId);
+    
+    if (!$usuari) {
+        return response()->json(['error' => 'Usuario no encontrado'], 404);
+    }
+    
+    // Obtener animales propios del usuario
+    // Esta lógica depende de cómo defines "animales propios" en tu aplicación
+    $animalesPropios = Animal::whereHas('publicacio', function($query) use ($userId) {
+        $query->where('usuari_id', $userId);
+    })->with(['protectora', 'geolocalitzacio', 'publicacio'])->get();
+    
+    // Agregar URL de la imagen
+    foreach ($animalesPropios as $animal) {
+        if ($animal->imatge) {
+            $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+        }
     }
     
     return response()->json($animalesPropios);

@@ -53,6 +53,8 @@ Route::get('animal/imatge/{id}', [AnimalController::class, 'getAnimalImatge']);
 
 Route::get('usuario/{id}/animales', [AnimalController::class, 'getAnimalesByUsuario']);
 
+Route::get('usuario/{id}/animales-propios', [AnimalController::class, 'getAnimalesPropiosByUsuario']);
+
 
 Route::get('protectoras', [ProtectoraController::class, 'getProtectoras']);
 
