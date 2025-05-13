@@ -4,6 +4,12 @@ use App\Http\Controllers\Api\V1\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AnimalController;
+use App\Http\Controllers\ProtectoraController;
+use App\Http\Controllers\PublicacioController;
+use App\Http\Controllers\InteraccioController;
+
 
 
 /*
@@ -30,11 +36,6 @@ Route::middleware('auth:sanctum')->get('/v1/user-profile', function (Request $re
     return response()->json($request->user());
 });
 
-use App\Http\Controllers\AnimalController;
-use App\Http\Controllers\ProtectoraController;
-use App\Http\Controllers\PublicacioController;
-/* use App\Http\Controllers\Api\V1\AuthController;
- */use App\Http\Controllers\InteraccioController;
 
 
 
@@ -116,3 +117,5 @@ Route::options('{any}', function (Request $request) {
         ->header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE')
         ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 })->where('any', '.*');
+
+Route::get('usuario/{id}/is-admin', [UserController::class, 'isAdmin']);

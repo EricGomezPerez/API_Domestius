@@ -46,7 +46,7 @@ class AnimalController extends Controller
             'descripcio' => 'nullable|string',
             'estat' => 'required|string',
             'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
-            'protectora_id' => 'required|integer|exists:protectores,id',
+            'protectora_id' => 'sometimes|integer|exists:protectores,id',
             'publicacio_id' => 'nullable|integer|exists:publicacions,id',
             'latitud' => 'required|string',
             'longitud' => 'required|string',
@@ -109,8 +109,8 @@ class AnimalController extends Controller
             'ubicacio' => 'nullable|string',
             'estat' => 'sometimes|required|string',
             'imatge' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
-            'protectora_id' => 'sometimes|required|integer|exists:protectoras,id',
-            'publicacio_id' => 'nullable|integer|exists:publicacios,id',
+            'protectora_id' => 'sometimes|required|integer|exists:protectores,id',
+            'publicacio_id' => 'nullable|integer|exists:publicacions,id',
         ]);
         
         if (isset($validatedData['nom'])) {
