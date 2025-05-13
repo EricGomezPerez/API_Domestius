@@ -70,6 +70,9 @@ Route::get('protectora/imatge/{id}', [ProtectoraController::class, 'getProtector
 
 Route::get('protectora/usuario/{usuarioId}', [ProtectoraController::class, 'getProtectoraByUsuario']);
 
+Route::get('protectora/{id}/animales', [ProtectoraController::class, 'getAnimalesByProtectora']);
+
+
 
 Route::get('publicacions', [PublicacioController::class, 'getPublicacions']);
 

@@ -11,9 +11,9 @@ use App\Models\Usuari;
 class InteraccioController extends Controller
 {
     /**
-     * Obtener todas las interacciones
-     */
-    public function getInteraccions()
+ * Obtener todas las interacciones
+ */
+public function getInteraccions()
     {
         $interaccions = Interaccio::with(['usuari', 'publicacio', 'tipusInteraccio'])->get();
         
@@ -21,52 +21,67 @@ class InteraccioController extends Controller
             if ($interaccio->usuari) {
                 $interaccio->usuari->makeHidden(['contrasenya']);
             }
-        }
-        
-        return response()->json($interaccions);
-    }
-    
-    /**
-     * Obtener una interacción específica
-     */
-    public function getInteraccio($id)
-    {
-        $interaccio = Interaccio::with(['usuari', 'publicacio', 'tipusInteraccio'])->find($id);
-        
-        if (!$interaccio) {
-            return response()->json(['error' => 'Interacción no encontrada'], 404);
-        }
-        
-        if ($interaccio->usuari) {
-            $interaccio->usuari->makeHidden(['contrasenya']);
-        }
-        
-        return response()->json($interaccio);
-    }
-    
-    /**
-     * Obtener interacciones por publicación
-     */
-    public function getInteraccionsByPublicacio($publicacioId)
-    {
-        $publicacio = Publicacio::find($publicacioId);
-        
-        if (!$publicacio) {
-            return response()->json(['error' => 'Publicación no encontrada'], 404);
-        }
-        
-        $interaccions = Interaccio::with(['usuari', 'tipusInteraccio'])
-            ->where('publicacio_id', $publicacioId)
-            ->get();
             
-        foreach ($interaccions as $interaccio) {
-            if ($interaccio->usuari) {
-                $interaccio->usuari->makeHidden(['contrasenya']);
+            // Añadir el slug del tipo de interacción a la respuesta
+            if ($interaccio->tipusInteraccio) {
+                $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
             }
         }
         
         return response()->json($interaccions);
     }
+    
+ /**
+ * Obtener una interacción específica
+ */
+public function getInteraccio($id)
+{
+    $interaccio = Interaccio::with(['usuari', 'publicacio', 'tipusInteraccio'])->find($id);
+    
+    if (!$interaccio) {
+        return response()->json(['error' => 'Interacción no encontrada'], 404);
+    }
+    
+    if ($interaccio->usuari) {
+        $interaccio->usuari->makeHidden(['contrasenya']);
+    }
+    
+    // Añadir el slug del tipo de interacción a la respuesta
+    if ($interaccio->tipusInteraccio) {
+        $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
+    }
+    
+    return response()->json($interaccio);
+}
+
+/**
+ * Obtener interacciones por publicación
+ */
+public function getInteraccionsByPublicacio($publicacioId)
+{
+    $publicacio = Publicacio::find($publicacioId);
+    
+    if (!$publicacio) {
+        return response()->json(['error' => 'Publicación no encontrada'], 404);
+    }
+    
+    $interaccions = Interaccio::with(['usuari', 'tipusInteraccio'])
+        ->where('publicacio_id', $publicacioId)
+        ->get();
+        
+    foreach ($interaccions as $interaccio) {
+        if ($interaccio->usuari) {
+            $interaccio->usuari->makeHidden(['contrasenya']);
+        }
+        
+        // Añadir el slug del tipo de interacción a la respuesta
+        if ($interaccio->tipusInteraccio) {
+            $interaccio->tipus_interaccio_slug = $interaccio->tipusInteraccio->slug;
+        }
+    }
+    
+    return response()->json($interaccions);
+}
     
     /**
      * Crear una nueva interacción
@@ -83,10 +98,8 @@ class InteraccioController extends Controller
                 'detalls' => 'nullable|string'
             ]);
             
-            // Si no se proporciona fecha, usar la actual
-            if (!isset($validatedData['data'])) {
-                $validatedData['data'] = now();
-            }
+            // Siempre establecer la fecha actual si no se proporciona
+            $validatedData['data'] = $request->input('data', now()->toDateString());
             
             $interaccio = Interaccio::create($validatedData);
             
