@@ -3,7 +3,7 @@
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['http://localhost:4200'], // Específicamente tu frontend Angular
+    'allowed_origins' => ['https://domestius2.vercel.app'], // Específicamente tu frontend Angular
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
