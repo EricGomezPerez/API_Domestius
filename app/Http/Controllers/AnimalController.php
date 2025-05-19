@@ -10,6 +10,8 @@ use App\Models\Publicacio;
 use App\Models\Usuari;
 use App\Models\Interaccio;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
+
 
 class AnimalController extends Controller
 {
@@ -19,6 +21,7 @@ class AnimalController extends Controller
 
         foreach ($animales as $animal) {
             $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+
             
             // Añadir información del propietario
             if ($animal->protectora_id) {
@@ -42,6 +45,7 @@ class AnimalController extends Controller
         }
         
         $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+
         
         // Añadir información del propietario
         if ($animal->protectora_id) {
@@ -90,8 +94,8 @@ class AnimalController extends Controller
                 $file = $request->file('imatge');
                 $extension = $file->getClientOriginalExtension();
                 $filename = strtolower($animal->nom . '_' . $animal->raça . '_' . uniqid() . '.' . $extension);
-                $file->move(public_path(env('RUTA_IMATGES')), $filename);
-                $animal->imatge = $filename;
+                $ruta = $request->file('imatge')->storeAs('uploads/imatges', $filename, 'public');
+                $animal->imatge = $ruta;
             }
 
             $animal->save();
@@ -163,8 +167,8 @@ class AnimalController extends Controller
             $file = $request->file('imatge');
             $extension = $file->getClientOriginalExtension();
             $filename = strtolower($animal->nom . '_' . $animal->raça . '_' . uniqid() . '.' . $extension);
-            $file->move(public_path(env('RUTA_IMATGES')), $filename);
-            $animal->imatge = $filename;
+            $ruta = $request->file('imatge')->storeAs('uploads/imatges', $filename, 'public');
+            $animal->imatge = $ruta;
         }
 
         $animal->save();
@@ -209,7 +213,7 @@ class AnimalController extends Controller
             return response()->json(['error' => 'Imagen no encontrada'], 404);
         }
         
-        $path = public_path(env('RUTA_IMATGES') . '/' . $animal->imatge);
+        $path = storage_path('app/public/' . $animal->imatge);
         
         if (file_exists($path)) {
             $headers = ['Content-Type' => 'image/jpeg'];
@@ -253,6 +257,7 @@ class AnimalController extends Controller
     // Agregar URL de la imagen
     foreach ($animalesPropios as $animal) {
         $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+
     }
     
     return response()->json($animalesPropios);
@@ -275,6 +280,7 @@ public function getAnimalesPropiosByUsuario($usuariId)
     // Agregar URL de la imagen y más información
     foreach ($animales as $animal) {
         $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+
         $animal->propietario_tipo = 'usuario';
         $animal->propietario_nombre = $usuari->nom;
         

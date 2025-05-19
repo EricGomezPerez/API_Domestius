@@ -270,6 +270,7 @@ public function getAnimalesByProtectora($protectoraId)
     // Añadir URL de la imagen
     foreach ($animales as $animal) {
         $animal->imatge = url('/api/animal/imatge/' . $animal->id);
+
     }
     
     return response()->json($animales);
