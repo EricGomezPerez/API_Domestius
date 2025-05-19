@@ -206,22 +206,17 @@ class AnimalController extends Controller
     }
     
     public function getAnimalImatge($id)
-    {
-        $animal = Animal::find($id);
-        
-        if (!$animal || !$animal->imatge) {
-            return response()->json(['error' => 'Imagen no encontrada'], 404);
-        }
-        
-        $path = storage_path('app/public/' . $animal->imatge);
-        
-        if (file_exists($path)) {
-            $headers = ['Content-Type' => 'image/jpeg'];
-            return response()->file($path, $headers);
-        }
-        
+{
+    $animal = Animal::find($id);
+    
+    if (!$animal || !$animal->imatge) {
         return response()->json(['error' => 'Imagen no encontrada'], 404);
     }
+    
+    // Redirigir a la URL pública de la imagen
+    $imageUrl = url('/storage/' . $animal->imatge);
+    return redirect($imageUrl);
+}
 
     public function getAnimalesByUsuario($userId)
 {
