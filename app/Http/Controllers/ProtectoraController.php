@@ -96,8 +96,8 @@ public function createProtectora(Request $request)
             $file = $request->file('imatge');
             $extension = $file->getClientOriginalExtension();
             $filename = strtolower('protectora_' . uniqid() . '.' . $extension);
-            $file->move(public_path(env('RUTA_IMATGES')), $filename);
-            $protectora->imatge = $filename;
+            $ruta = $request->file('imatge')->storeAs('uploads/imatges', $filename, 'public');
+            $protectora->imatge = $ruta;
         }
 
         $protectora->save();
@@ -158,19 +158,11 @@ public function updateProtectora(Request $request, $id)
     
         // Procesar la imagen si existe
         if ($request->file('imatge')) {
-            // Eliminar imagen anterior si existe
-            if ($protectora->imatge) {
-                $oldPath = public_path(env('RUTA_IMATGES') . '/' . $protectora->imatge);
-                if (file_exists($oldPath)) {
-                    unlink($oldPath);
-                }
-            }
-            
             $file = $request->file('imatge');
             $extension = $file->getClientOriginalExtension();
-            $filename = strtolower($protectora->nombre . '_' . uniqid() . '.' . $extension);
-            $file->move(public_path(env('RUTA_IMATGES')), $filename);
-            $protectora->imatge = $filename;
+            $filename = strtolower($protectora->nombre ?? 'protectora' . '_' . uniqid() . '.' . $extension);
+            $ruta = $request->file('imatge')->storeAs('uploads/imatges', $filename, 'public');
+            $protectora->imatge = $ruta;
         }
         
         $protectora->save();
@@ -214,22 +206,17 @@ public function updateProtectora(Request $request, $id)
      * Obtener la imagen de una protectora
      */
     public function getProtectoraImatge($id)
-    {
-        $protectora = Protectora::find($id);
-        
-        if (!$protectora || !$protectora->imatge) {
-            return response()->json(['error' => 'Imagen no encontrada'], 404);
-        }
-        
-        $path = public_path(env('RUTA_IMATGES') . '/' . $protectora->imatge);
-        
-        if (file_exists($path)) {
-            $headers = ['Content-Type' => 'image/jpeg'];
-            return response()->file($path, $headers);
-        }
-        
+{
+    $protectora = Protectora::find($id);
+    
+    if (!$protectora || !$protectora->imatge) {
         return response()->json(['error' => 'Imagen no encontrada'], 404);
     }
+    
+    // Redirigir a la URL pública de la imagen
+    $imageUrl = url('/storage/' . $protectora->imatge);
+    return redirect($imageUrl);
+}
 
     /**
  * Obtener protectora por ID de usuario
