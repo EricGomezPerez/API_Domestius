@@ -40,4 +40,14 @@ class UserController extends Controller
             'nombre' => $usuario->nom
         ]);
     }
+
+    public function getAllUsers()
+{
+    // Obtener solo los campos id y nom de todos los usuarios
+    $usuarios = Usuari::select('id', 'nom', 'email')->get();
+    
+    return response()->json([
+        'usuarios' => $usuarios
+    ]);
+}
 }

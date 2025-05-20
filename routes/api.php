@@ -124,3 +124,5 @@ Route::options('{any}', function (Request $request) {
 })->where('any', '.*');
 
 Route::get('usuario/{id}/is-admin', [UserController::class, 'isAdmin']);
+
+Route::get('usuarios', [UserController::class, 'getAllUsers']);
