@@ -1,7 +1,7 @@
 <?php
 // auth-laravel-api/config/cors.php
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'v1/*'],
     'allowed_methods' => ['*'],
     'allowed_origins' => ['https://domestius2.vercel.app'], // Específicamente tu frontend Angular
     'allowed_origins_patterns' => [],
